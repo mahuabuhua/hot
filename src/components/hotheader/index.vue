@@ -21,7 +21,7 @@ export default {
 .warning-container {
     position: relative;
     width: 90%;
-    height: 50vh;
+    height: 25vh;
     margin: auto;
     margin-top: 2vh;
     background: linear-gradient(to bottom, #ff9966, #ff5e62);

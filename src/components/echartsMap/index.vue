@@ -1,13 +1,8 @@
 <template>
   <div style="width: 100%;height: 100%;">
     <!-- <el-card> -->
-    <el-button
-      type="primary"
-      @click="goBack"
-      style="position: absolute; left: 85vh; z-index: 999999"
-      v-if="status && this.$store.state.code != '320000'"
-      >返回上级</el-button
-    >
+    <!-- <el-button type="primary" @click="goBack" style="position: absolute; left: 85vh; z-index: 999999"
+      v-if="status && this.$store.state.code != '320000'">返回上级</el-button> -->
     <!-- <el-select v-model="selectedPollutant" placeholder="请选择污染物" style="position: absolute;left: 10vh; z-index: 999999; width: 15vh;">
       <el-option label="HCHO" value="HCHO" />
       <el-option label="O3" value="O3" />
@@ -15,11 +10,7 @@
       <el-option label="PM2.5" value="PM2.5" />
       <el-option label="PM10" value="PM10" />
     </el-select> -->
-    <div
-      ref="mapChartRef"
-      style="height: 100%; width: 100%"
-      id="mapChartRef"
-    ></div>
+    <div ref="mapChartRef" style="height: 100%; width: 100%" id="mapChartRef"></div>
     <!-- </el-card> -->
   </div>
 </template>
@@ -41,8 +32,8 @@ export default {
     };
   },
   mounted() {
-    this.getMapData(this.initAdCode);
-    window.addEventListener('resize', this.handleResize);
+    // this.getMapData(this.initAdCode);
+    // window.addEventListener('resize', this.handleResize);
   },
   beforeDestroy() {
     // 组件销毁前移除事件监听
@@ -54,22 +45,21 @@ export default {
   methods: {
     handleResize() {
       if (this.initChinaMap) {
-      // 添加防抖处理，避免频繁重绘
-      clearTimeout(this.resizeTimer);
-      this.resizeTimer = setTimeout(() => {
-        this.initChinaMap.resize();
-        // 重新设置option以确保visualMap正确渲染
-        this.initChinaMap.setOption(this.initChinaMap.getOption(), true);
-      }, 100);
-    }
+        // 添加防抖处理，避免频繁重绘
+        clearTimeout(this.resizeTimer);
+        this.resizeTimer = setTimeout(() => {
+          this.initChinaMap.resize();
+          // 重新设置option以确保visualMap正确渲染
+          this.initChinaMap.setOption(this.initChinaMap.getOption(), true);
+        }, 100);
+      }
     },
-    async getMapData(code) {
+    async getMapData(code, obj) {
       const data = await axios
         .get(`https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json`)
         .then((res) => {
           this.mapList = [];
           let result = res.data;
-
           if (res.status === 200) {
             // 获取当前选中的省市区的所有名称和编码
             result.features.forEach((item) => {
@@ -80,7 +70,7 @@ export default {
             });
             result.features.unshift(result.features[0]);
 
-            this.renderChart(this.currentMapName, result);
+            this.renderChart(this.currentMapName, result, obj);
           }
         })
         .catch(() => {
@@ -88,8 +78,8 @@ export default {
         });
       return data;
     },
-    renderChart(mapName, mapData) {
-      let arr = this.$store.state.arr;
+    renderChart(mapName, mapData, data) {
+      let arr = data;
       arr.forEach((item) => {
         item.name = item.areaName;
         if (item.name == "海门市") {
@@ -102,6 +92,7 @@ export default {
         }
       });
 
+      
       if (this.initChinaMap != "") {
         this.initChinaMap.dispose();
       }
@@ -128,20 +119,22 @@ export default {
           },
           showDelay: 100,
           formatter: (params) => {
-          
+    
             let str = `<div>${params.name}</div>`;
-            str += `<div style="text-align:left">平均温度：36°C</div>`
-            str += `<div style="text-align:left">最高温度：40°C</div>`
-            str += `<div style="text-align:left">风险等级：高风险</div>`
+            str += `<div style="text-align:left">平均温度：${params.data.avgTemp}°C</div>`
+             str += `<div style="text-align:left">最低温度：${params.data.minTemp?params.data.minTemp+"°C":"暂无"}</div>`
+            str += `<div style="text-align:left">最高温度：${params.data.highTemp}°C</div>`
+            str += `<div style="text-align:left">风险等级：${params.data.tempLevelName}</div>`
+             str += `<div style="text-align:left">更新时间：${params.data.time}</div>`
             return str;
-         },
+          },
         },
         series: [
           {
             type: "map",
             select: {
               //这个就是鼠标点击后，地图想要展示的配置
-              disabled: false, //可以被选中
+              disabled: true, //可以被选中
               itemStyle: {
                 //相关配置项很多，可以参考echarts官网
                 areaColor: "#fff", //选中
@@ -178,10 +171,10 @@ export default {
         ],
         visualMap: {
           type: "piecewise", // 定义为分段型visualMap
-          show:false,
+          show: true,
           selectedMode: false,
           textStyle: {
-            color: "#ffffff", // 设置字体颜色为白色
+            color: "#000000", // 设置字体颜色为白色
           },
           splitNumber: 0, // 由于我们手动定义了pieces，所以不需要自动分割，设置splitNumber为0
           calculable: false,
@@ -199,7 +192,7 @@ export default {
               min: 0,
               max: 0,
               label: "低风险",
-              color: "#69C0FF",
+              color: "#B5FF2F",
             },
             {
               min: 1,

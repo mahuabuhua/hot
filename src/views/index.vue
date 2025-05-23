@@ -52,6 +52,13 @@ export default {
     };
   },
   mounted() {
+      axios
+      .get(
+        baseURL +"/HotData/getAccessCount"
+      )
+      .then((response) => { 
+          this.total=response.data.data.accessCount
+      })
     this.$store.commit("setLoading", false);
     this.$router.push("/");
     setInterval(() => {

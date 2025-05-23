@@ -37,16 +37,16 @@
       globalConfig = {
          "backend" : {
           "protocol": "http",
-          "host": "119.3.128.61",
-         "port": "8073", 
+        //   "host": "119.3.128.61",
+        //  "port": "8073", 
           //       "host": "192.168.3.151", 
-          // "host": "192.168.3.84",
-          // "port": "8080",
+          "host": "192.168.3.13",
+          "port": "8080",
           "path":''
         }
       }
 
-      baseURL= globalConfig.backend.protocol + "://" + globalConfig.backend.host + ":" + globalConfig.backend.port
+      baseURL= globalConfig.backend.protocol + "://" + globalConfig.backend.host + ":" + globalConfig.backend.port+'/coldWaveWarning'
       // console.log(baseURL);+'/coldWaveWarning'
       
 </script>
